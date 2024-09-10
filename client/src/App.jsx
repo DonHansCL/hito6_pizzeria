@@ -48,9 +48,9 @@ const App = () => {
             <Route path='/cart' element={<Cart />}></Route>
             <Route path='/pizza/p001' element={<Pizza pizzaId="p001" />}></Route>
             <Route path="/profile" element={
-            // <ProtectedRoute>
+            <ProtectedRoute>
               <Profile />
-            // </ProtectedRoute>
+            </ProtectedRoute>
           } />
             <Route path="/pizza/:id" element={<PizzaPage />}></Route>
             <Route path='*' element={<NotFound />}></Route>

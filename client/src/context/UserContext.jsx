@@ -6,8 +6,9 @@ export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const [token, setToken] = useState(() => {
-         // Obtener el token desde localStorage al inicializar el estado
-        return localStorage.getItem('token') === 'true'
+         // Obtener el token desde localStorage al inicializar el estado, o establecerlo en true si no existe
+         const storedToken = localStorage.getItem('token')
+        return storedToken !== null ? storedToken === 'true' : true
     })
 
     useEffect(() => {
@@ -20,7 +21,7 @@ const UserProvider = ({ children }) => {
     };
 
     return (
-        <UserContext.Provider value={{ token, logout }}>
+        <UserContext.Provider value={{ token, logout, setToken }}>
             {children}
         </UserContext.Provider>
     );
