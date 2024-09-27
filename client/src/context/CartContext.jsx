@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from 'react'
-import { pizzaCart } from "../pizzas"
+// import { pizzaCart } from "../pizzas"    // ya no lo estoy usando inicializo el carrito vacio
 import Swal from 'sweetalert2';
 import customImage from "../assets/pizza.gif"
 import { useLocation } from 'react-router-dom';
@@ -13,15 +13,31 @@ const url = "http://localhost:5000/api/pizzas"
 const CartProvider = ({ children }) => {
 
     const [cart, setCart] = useState([])
-
-    const [data, setData] = useState([]);
+    const [data, setData] = useState([])
 
     useEffect(() => {
         // Inicializar el carrito con las pizzas desde pizzaCart
-        const initialCart = pizzaCart;
-        setCart(initialCart);
-    }, []);
+        // const initialCart = pizzaCart;
+        // setCart(initialCart);
 
+        // inicial el carrito desde localStorage
+        const savedCart = JSON.parse(localStorage.getItem('cart')) || []
+        console.log('Carrito recuperado del localStorage:', savedCart)
+        setCart(savedCart)
+       
+    }, [])
+
+
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [cart]);
 
 
     // Obtener las pizzas del API
@@ -70,10 +86,8 @@ const CartProvider = ({ children }) => {
 
             
             // Verificar si la pizza ya está en el carrito
-            const existingPizzaIndex = prevCart.findIndex(pizza => 
-                // console.log('Checking Pizza ID:', pizza.id, 'Against:', pizzaToAdd.id);
-                pizza.id === pizzaToAdd.id
-            );
+            const existingPizzaIndex = prevCart.findIndex(pizza =>  pizza.id === pizzaToAdd.id )
+                
 
             if (existingPizzaIndex > -1) {
                 // Si la pizza ya existe en el carrito, actualizar la cantidad
@@ -116,25 +130,7 @@ const CartProvider = ({ children }) => {
 
 
 
-
-        // Swal.fire({
-        //     title: "Custom width, padding, color, background.",
-        //     width: 600,
-        //     padding: "3em",
-        //     color: "#716add",
-        //     background: `#fff url(${custonBackground})`, // Usar la imagen importada para el fondo
-        //     backdrop: `
-        //       rgba(0,0,123,0.4)
-        //       url(${customImage}) 
-        //       left top
-        //       no-repeat
-        //     `
-        //   });
-    
-
-
     const emptyCart = () => {
-
         // console.log("Vaciar carrito"); // Verifica si el evento se captura
         setCart([]);
     };

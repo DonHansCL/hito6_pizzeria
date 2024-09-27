@@ -3,7 +3,9 @@ import { UserContext } from "../context/UserContext";
 import { useContext } from "react";
 
 const Profile = () => {
-    const { logout } = useContext(UserContext);
+    const { email, logout } = useContext(UserContext);
+
+    console.log('Email en Profile:', email); // Verifica el valor aquí
     return (
         
             <div className=" container py-5 h-100" >
@@ -24,7 +26,7 @@ const Profile = () => {
                                         <div className="row pt-1">
                                             <div className="col-6 mb-3">
                                                 <h6>Email</h6>
-                                                <p className="text-muted">info@example.com</p>
+                                                <p className="text-muted">{email}</p>
                                             </div>
                                             <div className="col-6 mb-3">
                                                 <h6>Phone</h6>

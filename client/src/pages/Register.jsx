@@ -1,79 +1,63 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { UserContext } from '../context/UserContext'
+import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
 
     const [email, setEmail] = useState("")
-    const [pass, setPass] = useState("")
-    const [repass, setRepass] = useState("")
+    const [password, setPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const { register } = useContext(UserContext)
+    const navigate = useNavigate()
     const [error, setError] = useState("")
-    const [success, setSuccess] = useState(false)
 
-
-    //const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-    const validarDatos = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault()
-
-        //reset success message
-        setSuccess(false)
-
-        if (!email.trim() || !pass.trim() || !repass.trim()) {
-            setError("Todos los campos son obligatorios")
+        if (password !== confirmPassword) {
+            setError("Las contraseñas no coinciden")
             return
         }
 
-        if (pass.length < 6) {
-            setError("La contraseña debe tener al menos 6 caracteres")
-            return
+        try {
+            await register(email, password)
+            navigate('/profile')
+        } catch (error) {
+            setError("Error al registrar usuario")
         }
-
-        if (pass !== repass) {
-            setError("Las contraseña deben coincidir")
-            return
-        }
-
-        
-        // si pasa todas las validaciones
-        setError("")
-        setSuccess(true)
-        setEmail("")
-        setPass("")
-        setRepass("")
     }
 
-  return (
-    <>
-    <div className='container-fluid m-4 '>
-        <div className="row justify-content-center">
-            <div className="col-md-6">
-            <h1 className="text-center mb-4">Registro</h1>
-                <form className='formulario' onSubmit={validarDatos}>
-                    {error && <p className='error'>{error}</p>}
-                    {success && <p className='success'>Registro Exitoso</p>}
-                    <div className='form-group'>
-                        <label>Email</label>
-                        <input type="email" name="email" className="form-control" value={email}
-                        onChange={(e) => setEmail(e.target.value)}/>
+    return (
+        <>
+            <div className='container-fluid m-4 '>
+                <div className="row justify-content-center">
+                    <div className="col-md-6">
+                        <h1 className="text-center mb-4">Registro</h1>
+                        <form className='formulario' onSubmit={handleRegister}>
+                            
+                            <div className='form-group'>
+                                <label>Email</label>
+                                <input type="email" id="email" className="form-control" value={email}
+                                    onChange={(e) => setEmail(e.target.value)} />
+                            </div>
+                            <div className='form-group'>
+                                <label>Contraseña</label>
+                                <input type="password" id="password" value={password} className='form-control'
+                                    onChange={(e) => setPassword(e.target.value)} />
+                            </div>
+                            <div className='form-group'>
+                                <label>Confirmar contraseña</label>
+                                <input type="password" id="confirmPassword" className='form-control' value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)} />
+                            </div>
+                            <div className='text-center'>
+                                <button type='submit' className='btn btn-primary mt-2'>Enviar</button>
+                            </div>
+                        </form>
                     </div>
-                    <div className='form-group'>
-                        <label>Contraseña</label>
-                        <input type="password" name="pass" value={pass} className='form-control' 
-                        onChange={(e) => setPass(e.target.value)}/>
-                    </div>
-                    <div className='form-group'>
-                        <label>Confirmar contraseña</label>
-                        <input type="password" name="repass" className='form-control' value={repass} 
-                        onChange={(e) => setRepass(e.target.value)}/>
-                    </div>
-                    <div className='text-center'>
-                        <button type='submit' className='btn btn-primary mt-2'>Enviar</button>
-                    </div>
-                </form>
-               </div>
-            </div>    
-        </div>
-    </>
-  )
+                </div>
+            </div>
+        </>
+    )
 }
 
 export default Register

@@ -2,18 +2,62 @@
 import { pizzaCart } from '../pizzas'
 import  '../Cart.css'
 import { CartContext } from '../context/CartContext'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { UserContext } from '../context/UserContext'
+import axios from 'axios'
+import Swal from 'sweetalert2';
+import customImage from "../assets/pizza.gif"
+import { useNavigate } from 'react-router-dom'
 
 
 const Cart = () => {
 
-    const {cart, increaseQuantity, decreaseQuantity, total, deletePizzaCart} = useContext(CartContext)
+    const {cart, increaseQuantity, decreaseQuantity, total, deletePizzaCart, setCart} = useContext(CartContext)
     const { token } = useContext(UserContext)
+    const [successMessage, setSuccessMessage] = useState('')
+    const navigate = useNavigate()
+
+    const handleCheckout = async () => {
+        // si no hay token, el usuario no ha iniciado sesion
+        if (!token) {
+            Swal.fire({
+                title: "Inicia sesión",
+                text: "Debes iniciar sesión para procesar la compra.",
+                icon: "warning",
+                confirmButtonColor: "black"
+            }).then(() => {
+                navigate('/login') // Redirigir al login
+            })
+            return
+        }
+
+        try {
+            await axios.post('http://localhost:5000/api/checkouts', { cart }, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            // setSuccessMessage('Compra realizada con éxito!')
+            Swal.fire({
+                title: "Genial!",
+                text: "Compra realizada con éxito!",
+                imageUrl: customImage,
+                imageWidth: 200,
+                imageHeight: 200,
+                imageAlt: "Custom image",
+                confirmButtonColor: "black"
+            })
+            
+            setCart([])  // Vaciar el carrito al finalizar la compra
+
+        } catch (error) {
+            console.error('Error al realizar la compra', error)
+        }
+    }
+
 
     return (
         <div className='container mt-5'>
             <h2 className='text-center mb-4'>🛒 Tu Carrito</h2>
+            {successMessage && <div className='alert alert-success'>{successMessage}</div>}
             {cart.length > 0 ? (
                 <>
                     {cart.map(pizza => (
@@ -44,7 +88,7 @@ const Cart = () => {
                     ))}
                     <div className='text-center  mb-3'>
                         <h4>Total: ${total.toLocaleString()}</h4>
-                        <button className='btn btn-dark btn-sm mt-2 w-25' disabled={!token}>Pagar</button>
+                        <button className='btn btn-dark btn-sm mt-2 w-25' onClick={handleCheckout}>Pagar</button>
                     </div>
                 </>
             ) : (
